@@ -1,44 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vue js 애완용품샵_인성</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <link href="assets/css/app.css" real="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <style>
-        @keyframes blink-effect { 50% { opacity: 0; } } 
-        .blink { 
-            animation: blink-effect 1s step-end infinite; 
+        @keyframes blink-effect {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .blink {
+            animation: blink-effect 1s step-end infinite;
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <header class="navbar navbar-expend-lg bg-secondary">
             <h1 v-text="sitename"></h1>
             <div v-if="canOrder" class="nav justify-content-end cart">
-                <button type = "button" class = "btn btn-success btn lg" @click = showCheckout >
+                <button type="button" class="btn btn-success btn lg" @click=showCheckout>
                     <!-- 바인딩 옵션{{  }}을 통한 Vue 객체 안 함수 호출 -->
                     <span> 장바구니 {{cartItemCount}}</span>
                     <span> 주문하기</span>
-                </button> 
-                <button v-if="onRemove" type = "button" class="btn btn-danger btn lg" @click="removeCart">장바구니 비우기</button>
-                <button v-else="onRemove" type = "button" class="btn btn-secondary btn lg" >장바구니 비우기</button>
+                </button>
+                <button v-if="onRemove" type="button" class="btn btn-danger btn lg" @click="removeCart">장바구니 비우기</button>
+                <button v-else="onRemove" type="button" class="btn btn-secondary btn lg">장바구니 비우기</button>
             </div>
             <div v-else="canOrder" class="nav justify-content-end cart">
-                <button type = "button" class = "btn btn-secondary btn lg" @click = showCheckout >
+                <button type="button" class="btn btn-secondary btn lg" @click=showCheckout>
                     <span> 장바구니 {{cartItemCount}}</span>
                     <span> 주문하기</span>
-                </button> 
-                <button type = "button" class="btn btn-secondary btn lg" @click="removeCart">장바구니 비우기</button>
+                </button>
+                <button type="button" class="btn btn-secondary btn lg" @click="removeCart">장바구니 비우기</button>
             </div>
         </header>
         <main>
             <div class="row product">
-                <div v-if = "showProduct" class="row">
+                <div v-if="showProduct" class="row">
                     <div class="col">
                         <figure>
                             <img v-bind:src="product.image" alt="">
@@ -48,33 +56,116 @@
                         <h1 v-text="product.title"></h1>
                         <p v-html="product.description"></p>
                         <p>{{product.price | formatPrice}}</p>
-                        
+
                         <!-- Vue의 문법과 html, js의 문법 대조
                             <p v-text="productName"></p>
                             <p>[{{product.id}}] {{product.title}}</p> 
                         -->
-                        
+
                         <p>현재 재고량: {{ remaindInventory }}</p>
-                        
+
                         <p v-if="ifCondition1">당신을 위한 최고의 선택!</p>
                         <p v-else-if="ifCondition2" class="blink">마감임박!! 빨리 고르세요!!</p>
                         <p v-else><s>아쉽네요... 재고가 없어요...</s></p>
 
                         <button v-if="canAddToCart" class="btn btn-primary btn-lg" @click="addToCart">장바구니 담기</button>
                         <button v-else disabled class="btn btn-secondary btn-lg">장바구니 담기</button>
+
+                    </div>
+                </div>
+                <div v-else class="row">
+                    <!-- 주문하기 화면이 들어갈 자리 -->
+
+                    <div class="col-md-6">
+                        <strong>이름:</strong>
+                        <!-- input 태그로 입력받은 값을 order.firstName으로 넣는다. -->
+                        <input v-model="order.firstName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <strong>성:</strong>
+                        <input v-model="order.lastName" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-12"><strong>나머지 주소:</strong></div>
+                        <div class="col-md-12">
+                            <input v-model="order.address" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12"><strong>도:</strong></div>
+                        <div class="col-md-12">
+                            <input v-model="order.city" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2"><strong>시:</strong>
                         
+                            <select v-model="order.state" class="form-control">
+                                <!-- select option에서 value값이 없다면 컨텐츠 값을 취한다. -->
+                                <option disable value="">시</option>
+                                <!-- 
+                                    보통 key, value 형태로 쓰는데
+                                    value, key 위치를 바꾼 이유는
+                                    value는 항상 필요하다.
+                                    현재는 객체를 for문을 사용하는데
+                                    객체가 아닌 값만 가지고 있는 배열을 사용하는 경우
+                                    v-for="(V) in states"  형태로 사용 가능
+                                -->
+                                <option v-for="(value, key) in states" :value="key">{{value}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-6 col-md-offset-4"><strong>우편번호:</strong>
+                            <input v-model.number="order.zip" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-6 boxes">
+                            <!-- 라벨 태그를 선택해도 for="gift" 덕에 id="gift" 가 있는 input 태그가 체크됨 사용자의 접근 편의성을 올려줌 -->
+                            <input type="checkbox" id="gift" value="true" v-bind:true-value="order.sendGift"
+                                v-bind:false-value="order.dontSendGift" v-model="order.gift">
+                            <label for="gift">선물로 보내기</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-6 boxes">
+                            <!-- input태그의 value에서 위에는 불린값을 전송 아래에서는 ID값을 전송(Home) -->
+                            <input type="radio" id="home" :value="order.home" v-model="order.method">
+                            <label for="home">자택</label>
+
+                            <input type="radio" id="office" :value="order.office" v-model="order.method">
+                            <label for="office">직장</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary submit"
+                                v-on:click="submitForm">주문하기</button>
+                        </div>
+                    </div>
+                        <!-- 생긴 그대로 표시하는 태그 -->
+                    </div>
+                   
+                    <div class="col-md-12 verify">
+                        <pre>
+                            <!-- v-바인드 기능 -->
+                            성: {{order.firstName}}
+                            이름: {{order.lastName}}
+                            나머지: {{order.address}}
+                            도: {{order.city}}
+                            시: {{order.state}}
+                            우편번호: {{order.zip}}
+                            선물로 보내기: {{order.gift}}
+                            배송지 명: {{order.method}}
+                        </pre>
                     </div>
                 </div>
-                <div v-else>
-                    주문하기 화면이 들어갈 자리
-                    <div class="nav justify-content-end cart">
-                        <button type="button" class="btn btn-warning btn-lg" @click="showCheckout">돌아가기</button>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
-<!-- start test -->
+    <!-- start test -->
     <!--
     <div id="test">  
         <p>가로 : {{length}}</p>
@@ -86,45 +177,45 @@
         </p>
     </div>
     -->
-<!-- end test-->
+    <!-- end test-->
 
     <script>
-    /* test 예제 이론 수업용 vue 객체
-        let test = new Vue({
-            el : '#test',
-            data : {
-                length : 5,
-                width : 3
-            },
-            computed : {
-                area(){
-                    return this.length * this.width;
-                }
-            },
-            watch:{
-                length(newVal, oldVal){
-                    console.log(`이전 세로 길이: ${oldVal}, 새 세로 길이 : ${newVal}`);
+        /* test 예제 이론 수업용 vue 객체
+            let test = new Vue({
+                el : '#test',
+                data : {
+                    length : 5,
+                    width : 3
                 },
-                width(newVal, oldVal){
-                    console.log(`이전 가로 길이: ${oldVal}, 새 가로 길이 : ${newVal}`);
+                computed : {
+                    area(){
+                        return this.length * this.width;
+                    }
                 },
-                area(newVal, oldVal){
-                    console.log(`이전 넓이: ${oldVal}, 새 넓이 : ${newVal}`);
+                watch:{
+                    length(newVal, oldVal){
+                        console.log(`이전 세로 길이: ${oldVal}, 새 세로 길이 : ${newVal}`);
+                    },
+                    width(newVal, oldVal){
+                        console.log(`이전 가로 길이: ${oldVal}, 새 가로 길이 : ${newVal}`);
+                    },
+                    area(newVal, oldVal){
+                        console.log(`이전 넓이: ${oldVal}, 새 넓이 : ${newVal}`);
+                    }
+                },
+                beforeUpdate(){
+                    console.log(`데이터가 변경되었습니다.`);
                 }
-            },
-            beforeUpdate(){
-                console.log(`데이터가 변경되었습니다.`);
-            }
-        })
-    */
+            })
+        */
         // 페이지 생성 관련 타이밍을 알려주는 메소드
         var APP_LOG_LIFECYCLE_EVENTS = true;
-        function w(msg){
-            if(APP_LOG_LIFECYCLE_EVENTS){
+        function w(msg) {
+            if (APP_LOG_LIFECYCLE_EVENTS) {
                 console.log(msg);
             }
         }
-        window.onload = function() {
+        window.onload = function () {
             let temp = JSON.parse(localStorage.getItem("cart"));
             if (temp) {
                 //console.log(temp);
@@ -140,13 +231,39 @@
                     id: 1001,
                     title: "고양이 사료, 25파운드",
                     description: "당신의 고양이를 위한 <em>거부할 수 없는</em>, " +
-                                 "유기농 25파운드 사료입니다.",
+                        "유기농 25파운드 사료입니다.",
                     price: 2000,
                     image: "assets/images/product-fullsize.png",
                     inventory: 10,
                 },
                 cart: [],
-                showProduct: true
+                showProduct: true,
+                order: { // data 객체내 order 객체가 있다면 
+                    // js 에서 없는 프로퍼티에 접근하면 undefined가 나온다. 그리고 추가됨.
+                    // 밑에 프로퍼티들을 추가 하지 않아도 위에서 v-model을 통해 접근할때 undefined가 되어 생성되고, 새로운 값이 주어지면서 입력된다.
+                    // 혼자 작업하는게 아니니 이런것들을 명시적으로 하기 위해 만들어두는게 좋음.
+                    firstName: '',
+                    lastName: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    zip: '',
+                    gift: '선물 배송',
+                    method: '자택',
+                    sendGift: '선물 배송',
+                    dontSendGift: '선물배송 아님',
+                    home: '자택',
+                    office: '직장',
+                },
+                states: {
+                    // key : value
+                    AL: '알라바마',
+                    AK: '알레스카',
+                    AR: '애리조나',
+                    CA: '캘리포니아',
+                    NV: '네바다',
+                    NY: '뉴욕',
+                },
             },
 
             // computed: 데이터가 계산 및 처리한 후 결과값을 반환
@@ -155,7 +272,7 @@
                     return this.cart.length;
                 },
                 productName() {
-                    return `[${this.product.id+1}] ${this.product.title}`
+                    return `[${this.product.id + 1}] ${this.product.title}`
                 },
                 remaindInventory() {
                     let v = this.product.inventory - this.cart.length;
@@ -168,7 +285,7 @@
                     return this.cart != 0;
                 },
                 ifCondition1() {
-                    return  this.cart.length < 5;
+                    return this.cart.length < 5;
                 },
                 ifCondition2() {
                     return this.cart.length < 10;
@@ -178,7 +295,7 @@
                 },
             },
             filters: {
-              
+
                 formatPrice(price) {
                     if (!parseFloat(price))
                         return "Free";
@@ -187,10 +304,10 @@
                 }
             },
             methods: {
-                
+
                 // 재고(inventory)보다 장바구니(카드)가 적으면 카트에 id값을 넣는다.
-                addToCart: function() {
-                    if(this.product.inventory > this.cart.length) {
+                addToCart: function () {
+                    if (this.product.inventory > this.cart.length) {
                         this.cart.push(this.product.id);
                         this.saveCart();
                     }
@@ -199,14 +316,14 @@
                 //토글 스위치
                 showCheckout() {
                     if (this.cartItemCount === 0) {
-                        alert("주문할 수 없습니다.")
-                    } else { 
+                        alert("주문할 수 없습니다.");
+                    } else {
                         // 아래 코드들 중 하나 선택
                         this.showProduct = !!!this.showProduct;
                         // this.showProduct = this.showCheckout ? false : true;
                         // !boolean(this.showCheckout)
                     }
-                    
+
                 },
                 removeCart() {
                     this.cart.splice(0);
@@ -217,12 +334,16 @@
                 saveCart() {
                     window.localStorage.setItem("cart", JSON.stringify(this.cart));
                 },
-                
-                beforeCreate(){
-                console.log("Start beforeCreate")
+
+                beforeCreate() {
+                    console.log("Start beforeCreate");
                 },
+                submitForm() {
+                    alert('주문하기 제출 완료');
+                }
             },
         });
     </script>
 </body>
+
 </html>
