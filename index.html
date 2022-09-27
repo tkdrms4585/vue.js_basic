@@ -124,8 +124,10 @@
                     <div class="form-group">
                         <div class="col-md-6 boxes">
                             <!-- 라벨 태그를 선택해도 for="gift" 덕에 id="gift" 가 있는 input 태그가 체크됨 사용자의 접근 편의성을 올려줌 -->
-                            <input type="checkbox" id="gift" value="true" v-bind:true-value="order.sendGift"
-                                v-bind:false-value="order.dontSendGift" v-model="order.gift">
+                            <input type="checkbox" id="gift" value="false" 
+                                v-bind:true-value="order.sendGift"
+                                v-bind:false-value="order.dontSendGift" 
+                                v-model="order.gift">
                             <label for="gift">선물로 보내기</label>
                         </div>
                     </div>
