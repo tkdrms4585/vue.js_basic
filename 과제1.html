@@ -218,9 +218,18 @@
                     window.localStorage.setItem("cart", JSON.stringify(this.cart));
                 },
                 
-                beforeCreate(){
+                
+            },
+            beforeCreate(){
                 console.log("Start beforeCreate")
                 },
+
+            beforeUpdate() {
+                console.log("업데이트 전")
+            },
+
+            updated() {
+                console.log("업데이트 됨")
             },
         });
     </script>
