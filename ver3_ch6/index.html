@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>컴포넌트 사용</title>
+    <meta charset="UTF-8">
+    <!-- Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div>새로운 페이지</div>
+        <global-component></global-component>
+        <local-component></local-component>
+        <my-component name="홍길동"></my-component>
+        <!-- : 없이 text로 하면 message가 됨.
+        :text로 작성을 하면 >> v-bind:text 의 줄임 -->
+        <c-component :text="message"></c-component>
+<br>
+        <d-component></d-component>
+        <d-component></d-component>
+<br>
+        <e-component :num="myNumber" :obj="passedObject" :even="myNumber"></e-component>
+<br>
+        <div>새로운 페이지</div>
+        {{ counter }}<br />
+        <button v-on:click="incrementCounter">counter 변수 값 증가</button>
+        <my-component v-on:increment-me="incrementCounter"></my-component>
+
+    </div>
+
+    <!-- html은 위에서 부터 순서대로 실행
+    스크립트 태그가 수행되기 전에 필요한 html 코드는 다 해석이 되어야함.
+    그래서 script 태그는 바디 마지막에 사용 -->
+    <!-- 컴포넌트들을 myVue.js 에 모아 놓고 연결만 하면 관리 및 재사용이 쉬움 
+    <script src="myVue.js"></script>
+    -->
+    <script>
+        const counter = { count: 0 };
+        const DComponent = {
+            // template에서 접근하는것은 data > count
+            template: '<div><button v-on:click="count += 1">{{count}}</button></div>',
+            // data함수에서 리턴하는 것은 '객체' counter 자체가 객
+            data() {
+                // 코드를 사용할 때마다 새로운 객체를 만들어서 카운터가 별도로 동작됨.
+                // return { count:0 }
+                // 이 경우 만들어진 변수 counter를 공유
+                 return counter;
+            }
+        };
+
+        const EComponent = {
+            template: `<div>숫자 : {{ num }}</br>문자열 : {{ str }}</br>객체속성 : {{ obj.message }}</br>짝수 : {{ even }} </div>`,
+            props: {
+                num:{
+                    type : Number,  // number 객체 이름
+                    required : true,  // 필수 항목
+                },
+                str : {
+                    type : String,
+                    default : '안녕', // 무조건 디폴트 값으로 출력
+                },
+                obj : {
+                    type : Object,
+                    default : () => { 
+                        return { message : '객체 안녕' };
+                        // 값이 없을 경우에는 디폴트 값을 주는데 객체의 경우 함수 형태로 반환
+                    }
+                }, 
+                even : { // 특정한 값인지 비교
+                    validator : (value) => {
+                        return (value % 2 === 0)
+                    }
+                }, 
+            },
+        };
+
+        const FComponent = {
+            template : `<div><button v-on:increment-me="incrementCounter" @click="incrementCounterFromComponent">컴포넌트에서 counter 변수 값 증가</button></div>`,
+            methods : {
+                incrementCounterFromComponent() {
+                    this.$emit(`increment-me`); // 이벤트 발생
+                    console.log('1');
+                },
+                incrementCounter() {
+                    console.log('2');
+                }
+            }
+        };
+
+        // vue의 전역 컴포넌트는 vue객체 이전에 만들어야함.
+        // vue 컴포넌트에는 2가지 매개변수가 들어감. 1. 텍스트 2. 객체
+        // html 태그는 대소문자 구분안함.(html5 기준) 그래서 카멜법이 아닌 단어 사이 하이픈을 사용
+        // vue에서는 이러한 점을 알아서 수정해줌.
+        // vue 객체의 myComponent 와 
+        // html 코드의 my-component는 동일
+        Vue.component('myComponent', {
+            template: `<div>{{name}}님 어서오세요.</div>`,
+            // 프로퍼티의 약자
+            // html의 속성을 사용할 수 있다.
+            props: ['name']
+        });
+
+        Vue.component('global-component', {
+            template: `<div>안녕, 전역 컴포넌트로부터<div>`
+        });
+        // 컴포넌트에서도 data 객체를 쓸수 있음. 이 경우 함수 호출 형태로만 써야한다.
+        Vue.component('c-component', {
+            template: `<div>안녕. {{text}}!</div>`,
+            props: ['text']
+        })
+        
+
+        let webstore = new Vue({
+            // vue와 html을 연결하는 역할
+            el: '#app',
+            components: {
+                'local-component': {
+                    template: `<div>안녕, 지역 컴포넌트로부터<div>`
+                },
+                'd-component': DComponent,
+                'e-component': EComponent,
+                'f-component': FComponent,
+            },
+            // 과거 Vue에서는 data를 양방향으로 수정 가능했지만 현재는 단방향 >> 렉이 심함.
+            // 자바스크립트에는 typeOf 가 있다. 데이터의 타입을 체크를 하는 것.
+            // 기존처럼 data: {객체} 의 형태가 아닌 함수의 형태로 만들었을 때
+            // return 하는 값의 타입을 체크하여 그 결과를 출력. >> Vue3에서는 함수만 써야함.
+            data() {
+                return {
+                    message: `부모 컴포넌트로부터!`,
+                    myNumber: 43,
+                    passedObject : { message : 'Vue 데이터 객체의 passedObject' },
+                    counter: 0,
+                }
+            },
+            methods: {
+                incrementCounter() {
+                    this.counter++;
+                },
+            },
+
+        });    
+    </script>
+</body>
+</html>
