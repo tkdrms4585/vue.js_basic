@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>컴포넌트 사용</title>
+    <meta charset="UTF-8">
+    <!-- Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+    <!-- 비동기 컴포넌트 
+        서버와 통신한뒤 만들어지는 컴포넌트
+        여기서는 서버가 없어서 시간으로 한다. -->
+    <div id="app">
+        <button @click="cycle">컴포넌트 변경하기</button>
+        <!-- 이 컴포넌트는 currentView랑 동일하다 -->
+        <component :is="currentView">
+
+
+        </component>
+    </div>
+    <script>
+        const BookComponent = {
+            template: `
+            <div>
+                bookcomponent
+            </div>
+            `,
+        };
+        const FormComponent = {
+            template: `
+            <div>
+                formcomponent
+            </div>
+            `,
+        };
+        const HeaderComponent = {
+            template: `
+            <div>
+                headercomponent
+            </div>
+            `,
+        };
+
+        new Vue({
+            el: '#app',
+            components: {
+                'book-component': BookComponent,
+                'form-component': FormComponent,
+                'header-component': HeaderComponent,
+            },
+            data() {
+                return {
+                    currentView:'form-component'
+                }
+            },
+            methods: {
+                cycle() {
+                    if(this.currentView === HeaderComponent) {
+                        this.currentView = BookComponent;
+                    } else {
+                        this.currentView = this.currentView === BookComponent ? FormComponent : HeaderComponent;
+                    }
+                }
+            }
+        });    
+    </script>
+</body>
+</html>
